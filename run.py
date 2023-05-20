@@ -1,3 +1,4 @@
+import gzip
 import os
 import pickle
 import re
@@ -35,5 +36,4 @@ if __name__ == '__main__':
     elapsed = time.time() - tstart
     print(f'total {elapsed}s')
 
-    with open(f'{VHH.output}/VHH_hists.pkl', 'wb') as hfile:
-        pickle.dump(output, hfile)
+    gzip.open(f'{VHH.output}/VHH_hists.pkl.gz', 'wb').write(pickle.dumps(output))
