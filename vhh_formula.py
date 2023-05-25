@@ -1,6 +1,6 @@
-from heptools.physics import Formula
+from heptools.physics import FormulaXS
 
-class VVHH_Vertex_LO(Formula):
+class VVHH_Vertex_LO(FormulaXS):
     _pattern = r'CV_{CV}_C2V_{C2V}_C3_{C3}'
     _diagram = ['CV', 'C2V', 'C3'], [[1, 0, 1], [2, 0, 0], [0, 1, 0]]
 
