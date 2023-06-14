@@ -12,7 +12,7 @@ from heptools.cms import json_POG_integration
 from heptools.corrections import (BTagSF_Shape, EventWeight, PileupJetIDSF,
                                   PileupWeight)
 from heptools.hists import Fill, Hists
-from heptools.physics.objects import multijet
+from heptools.physics.objects import jet as multijet
 
 from config import VHH_2j4b as VHH
 from schemas import MultiClassifierSchema
@@ -102,7 +102,7 @@ class analysis(processor.ProcessorABC):
         events['canJet'] = sort_field(events.selJet[:, 0:4], 'pt')
         update_fields(events.canJet, events.canJet * events.canJet.bRegCorr)
         events['othJet'] =  sort_field(events.selJet[:, 4:], 'pt')
-        h_d  = multijet.pair_all(events.canJet, 2)
+        h_d  = multijet.pair(events.canJet, mode = 'combination', combinations = 2)
         hh_q = multijet.pair(h_d[:, :, 0], h_d[:, :, 1])
 
         _mdr = ((360/hh_q.mass -0.5 < hh_q.lead_st.dr) & (hh_q.lead_st.dr < np.maximum(650/hh_q.mass + 0.5, 1.5)) + 
@@ -122,7 +122,7 @@ class analysis(processor.ProcessorABC):
         events['p4bHH'] = hh_q[:, 0]
 
         # 1 vector boson
-        v_d = multijet.pair_all(events.othJet)
+        v_d = multijet.pair(events.othJet, mode = 'combination')
         v_d = sort_field(v_d, 'pt')
         events['p2jOth'] = v_d
         v_d = v_d[(65 < v_d.mass) & (v_d.mass < 105)]
