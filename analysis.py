@@ -2,17 +2,17 @@ import os
 
 import awkward as ak
 import heptools
-import heptools.hists as hs
+import heptools.hist as hs
 import numpy as np
 import uproot
 from coffea import processor
 from coffea.nanoevents import NanoAODSchema, NanoEventsFactory
 from heptools.aktools import or_fields, sort_field, update_fields, where
 from heptools.cms import json_POG_integration
-from heptools.corrections import (BTagSF_Shape, EventWeight, PileupJetIDSF,
+from heptools.correction import (BTagSF_Shape, EventWeight, PileupJetIDSF,
                                   PileupWeight)
-from heptools.hists import Fill, Hists
-from heptools.physics.objects import jet as multijet
+from heptools.hist import Fill, Hists
+from heptools.physics.object import jet as multijet
 
 from config import VHH_2j4b as VHH
 from schemas import MultiClassifierSchema
