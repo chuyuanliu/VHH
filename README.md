@@ -1,21 +1,7 @@
 # VHH (V->jj, H->bb) Analysis
 
-## `singularity`
-run analysis
-
-    singularity run \
-    -B /cvmfs:/cvmfs:ro \
-    -B /uscms/home/chuyuanl/nobackup/VHH:/VHH/input:ro \
-    -B <output dir>:/VHH/output \
-    -B <repo dir>:/analysis \
-    docker://chuyuanliu/heptools:latest \
-    python /analysis/run.py
-
-## `conda`
-set up and activate conda environment
-
-    conda env create -f local.yml
-    conda activate vhh
+## Getting started
+see instructions for [heptools](https://github.com/chuyuanliu/heptools)
 
 # TODO
 - JEC

@@ -1,3 +1,4 @@
+# TODO use heptools.config.Config
 from typing import Iterable
 
 from xs import ZHH4b_samples, WHH4b_samples

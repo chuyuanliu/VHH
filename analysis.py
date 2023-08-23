@@ -8,7 +8,7 @@ import uproot
 from coffea import processor
 from coffea.nanoevents import NanoAODSchema, NanoEventsFactory
 from heptools.aktools import or_fields, sort_field, update_fields, where
-from heptools.cms import json_POG_integration
+from heptools.system.cvmfs import jsonPOG_integration
 from heptools.correction import (BTagSF_Shape, EventWeight, PileupJetIDSF,
                                   PileupWeight)
 from heptools.hist import Fill, Hists
@@ -21,7 +21,7 @@ from xs import XSection
 NanoAODSchema.warn_missing_crossrefs = False
 
 def corr_file(era, file):
-    return json_POG_integration(era, file) if VHH.corr else None
+    return jsonPOG_integration(era, file) if VHH.corr else None
 
 class analysis(processor.ProcessorABC):
     def process(self, events):
