@@ -2,17 +2,16 @@ import os
 
 import awkward as ak
 import heptools
-import heptools.hist as hs
 import numpy as np
 import uproot
 from coffea import processor
 from coffea.nanoevents import NanoAODSchema, NanoEventsFactory
 from heptools.aktools import or_fields, sort_field, update_fields, where
-from heptools.system.cvmfs import jsonPOG_integration
-from heptools.correction import (BTagSF_Shape, EventWeight, PileupJetIDSF,
-                                  PileupWeight)
-from heptools.hist import Fill, Hists
-from heptools.physics.object import jet as multijet
+from heptools.cms import (BTagSF_Shape, PileupJetIDSF, PileupWeight,
+                          jsonPOG_integration)
+from heptools.correction import EventWeight
+from heptools.hist import Collection, Fill, Systematic
+from heptools.physics.object import Jet, LorentzVector
 
 from config import VHH_2j4b as VHH
 from schemas import MultiClassifierSchema
@@ -56,22 +55,22 @@ class analysis(processor.ProcessorABC):
 
         # hists
         fill = Fill(process = process, era = era, weight = ('weights', 'weight'))
-        hist = Hists(process = [],
-                     era     = VHH.eras,
-                     tag     = VHH.ntags + [-3],
-                     region  = VHH.regions,
-                     kvvkl   = [-1.0, 0.0, 1.0],
-                     **dict((s, ...) for s in VHH.selections))
+        hist = Collection(process = [],
+                             era     = VHH.eras,
+                             tag     = VHH.ntags + [-3],
+                             region  = VHH.regions,
+                             kvvkl   = [-1.0, 0.0, 1.0],
+                             **dict((s, ...) for s in VHH.selections))
         cutflow = fill + hist.add('cutflow')
 
         fill += hist.add('SvB_MA_ps', (100, 0, 1, ('SvB_MA.VHH_ps', 'SvB_MA Regressed P(VHH)')))
-        fill += hs.Fourvector(('selJets', 'Selected Jets'), 'selJet', count = True)
-        fill += hs.Fourvector(('canJets', 'Higgs Candidate Jets'), 'canJet')
-        fill += hs.Fourvector(('othJets', 'Other Jets'), 'othJet', count = True)
-        fill += hs.DiFourvector(('p4bHH', R'$HH_{4b}$'), 'p4bHH')
-        fill += hs.DiFourvector(('p2jOth', R'Other Dijets'), 'p2jOth')
-        fill += hs.DiFourvector(('p2j', R'Vector Boson Candidate Dijets'), 'p2jV')
-        fill += hs.Systematic('SvB_MA_ps', weight, weight = 'weights')
+        fill += LorentzVector.plot(('selJets', 'Selected Jets'), 'selJet', count = True)
+        fill += LorentzVector.plot(('canJets', 'Higgs Candidate Jets'), 'canJet')
+        fill += LorentzVector.plot(('othJets', 'Other Jets'), 'othJet', count = True)
+        fill += LorentzVector.plot_pair(('p4bHH', R'$HH_{4b}$'), 'p4bHH')
+        fill += LorentzVector.plot_pair(('p2jOth', R'Other Dijets'), 'p2jOth')
+        fill += LorentzVector.plot_pair(('p2j', R'Vector Boson Candidate Dijets'), 'p2jV')
+        fill += Systematic('SvB_MA_ps', weight, weight = 'weights')
 
         # BDT, SvB
         events['kvvkl'] = events.BDT.kl
@@ -102,8 +101,8 @@ class analysis(processor.ProcessorABC):
         events['canJet'] = sort_field(events.selJet[:, 0:4], 'pt')
         update_fields(events.canJet, events.canJet * events.canJet.bRegCorr)
         events['othJet'] =  sort_field(events.selJet[:, 4:], 'pt')
-        h_d  = multijet.pair(events.canJet, mode = 'combination', combinations = 2)
-        hh_q = multijet.pair(h_d[:, :, 0], h_d[:, :, 1])
+        h_d  = Jet.pair(events.canJet, mode = 'combination', combinations = 2)
+        hh_q = Jet.pair(h_d[:, :, 0], h_d[:, :, 1])
 
         _mdr = ((360/hh_q.mass -0.5 < hh_q.lead_st.dr) & (hh_q.lead_st.dr < np.maximum(650/hh_q.mass + 0.5, 1.5)) + 
                (235/hh_q.mass      < hh_q.subl_st.dr) & (hh_q.subl_st.dr < np.maximum(650/hh_q.mass + 0.7, 1.5)))
@@ -122,7 +121,7 @@ class analysis(processor.ProcessorABC):
         events['p4bHH'] = hh_q[:, 0]
 
         # 1 vector boson
-        v_d = multijet.pair(events.othJet, mode = 'combination')
+        v_d = Jet.pair(events.othJet, mode = 'combination')
         v_d = sort_field(v_d, 'pt')
         events['p2jOth'] = v_d
         v_d = v_d[(65 < v_d.mass) & (v_d.mass < 105)]
