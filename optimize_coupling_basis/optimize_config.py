@@ -5,7 +5,7 @@ from typing import Any, Callable
 
 import numpy as np
 import scipy.optimize as opt
-from heptools.config import Config, Undefined, config_property
+from heptools.config import Config, Undefined, derived
 from heptools.physics import Coupling, FormulaXS
 
 
@@ -28,11 +28,11 @@ class Optimization(Config):
     algorithm_local: list[str] = Undefined
     objective_functions: dict[str, Callable[[Any], float]] = Undefined
 
-    @config_property
+    @derived
     def sample(cls) -> FormulaXS:
         return cls.model(cls.basis)
 
-    @config_property
+    @derived
     def reserved_basis(cls) -> np.ndarray:
         coupling = Coupling(cls.kappa)
         for i in cls.reserved:

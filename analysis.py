@@ -6,7 +6,7 @@ import numpy as np
 import uproot
 from coffea import processor
 from coffea.nanoevents import NanoAODSchema, NanoEventsFactory
-from heptools.aktools import or_fields, sort_field, update_fields, where
+from heptools.aktools import or_fields, sort, update_fields, where
 from heptools.cms import (BTagSF_Shape, PileupJetIDSF, PileupWeight,
                           jsonPOG_integration)
 from heptools.correction import EventWeight
@@ -97,10 +97,10 @@ class analysis(processor.ProcessorABC):
         events = events[events.pass6j]
 
         # 2 higgs bosons
-        events['selJet'] = sort_field(events.selJet, 'btagDeepFlavB')
-        events['canJet'] = sort_field(events.selJet[:, 0:4], 'pt')
+        events['selJet'] = sort(events.selJet, 'btagDeepFlavB')
+        events['canJet'] = sort(events.selJet[:, 0:4], 'pt')
         update_fields(events.canJet, events.canJet * events.canJet.bRegCorr)
-        events['othJet'] =  sort_field(events.selJet[:, 4:], 'pt')
+        events['othJet'] =  sort(events.selJet[:, 4:], 'pt')
         h_d  = Jet.pair(events.canJet, mode = 'combination', combinations = 2)
         hh_q = Jet.pair(h_d[:, :, 0], h_d[:, :, 1])
 
@@ -116,13 +116,13 @@ class analysis(processor.ProcessorABC):
         hh_q['rankMDR'] = hh_q.passDijetMass * 10 + _mdr + np.random.uniform(low=0.1, high=0.9, size=(len(hh_q), 3))
         hh_q['SR'] = _xHH < 1.9
         hh_q['SB'] = hh_q.passDijetMass & ~hh_q.SR
-        hh_q = sort_field(hh_q, 'rankMDR')
+        hh_q = sort(hh_q, 'rankMDR')
         events['region'] = hh_q[:, 0].SR * 0b10 + hh_q[:, 0].SB * 0b01
         events['p4bHH'] = hh_q[:, 0]
 
         # 1 vector boson
         v_d = Jet.pair(events.othJet, mode = 'combination')
-        v_d = sort_field(v_d, 'pt')
+        v_d = sort(v_d, 'pt')
         events['p2jOth'] = v_d
         v_d = v_d[(65 < v_d.mass) & (v_d.mass < 105)]
         events['p2jV'] = v_d
